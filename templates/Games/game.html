@@ -1,0 +1,1603 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Glitch4ce | Arcade Hub</title>
+    <link rel="icon" type="image/webp" href="{{ url_for('static', filename='Glitch4ce.webp') }}">
+    <link
+        href="https://fonts.googleapis.com/css2?family=Press+Start+2P&family=Orbitron:wght@500;700;900&family=Inter:wght@400;600;700&family=Share+Tech+Mono&family=JetBrains+Mono:wght@400;700&display=swap"
+        rel="stylesheet">
+    <style>
+        :root {
+            --neon-pink: #ff007f;
+            --neon-cyan: #00f3ff;
+            --neon-purple: #9d00ff;
+            --neon-red: #ff3344;
+            --neon-green: #00ff88;
+            --neon-yellow: #ffe600;
+            --dark-bg: #040409;
+            --card-bg: rgba(12, 12, 22, 0.86);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            background-color: var(--dark-bg);
+            background-image:
+                radial-gradient(circle at 10% 15%, rgba(0, 243, 255, 0.15) 0%, transparent 45%),
+                radial-gradient(circle at 90% 85%, rgba(255, 0, 127, 0.15) 0%, transparent 45%),
+                radial-gradient(circle at 50% 50%, rgba(157, 0, 255, 0.1) 0%, transparent 65%);
+            color: #ffffff;
+            font-family: 'Inter', system-ui, sans-serif;
+            min-height: 100vh;
+            overflow-x: hidden;
+            position: relative;
+        }
+
+        /* 3D Cyber Synthwave Grid Floor */
+        .cyber-grid-floor {
+            position: fixed;
+            bottom: -60px;
+            left: -50%;
+            width: 200%;
+            height: 65vh;
+            background-image:
+                linear-gradient(rgba(0, 243, 255, 0.24) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(0, 243, 255, 0.24) 1px, transparent 1px);
+            background-size: 45px 45px;
+            transform: perspective(320px) rotateX(72deg);
+            transform-origin: bottom center;
+            animation: gridMove 10s linear infinite;
+            mask-image: linear-gradient(to top, rgba(0, 0, 0, 1) 15%, rgba(0, 0, 0, 0) 88%);
+            -webkit-mask-image: linear-gradient(to top, rgba(0, 0, 0, 1) 15%, rgba(0, 0, 0, 0) 88%);
+            pointer-events: none;
+            z-index: 1;
+        }
+
+        @keyframes gridMove {
+            0% {
+                background-position: 0 0;
+            }
+
+            100% {
+                background-position: 0 450px;
+            }
+        }
+
+        /* Ambient Glowing Nebula Orbs */
+        .ambient-glow {
+            position: fixed;
+            width: 600px;
+            height: 600px;
+            border-radius: 50%;
+            filter: blur(140px);
+            pointer-events: none;
+            z-index: 0;
+            opacity: 0.6;
+            animation: orbFloat 9s ease-in-out infinite alternate;
+        }
+
+        .glow-cyan {
+            top: 0%;
+            left: 0%;
+            background: radial-gradient(circle, rgba(0, 243, 255, 0.45), transparent 70%);
+        }
+
+        .glow-pink {
+            bottom: 5%;
+            right: 0%;
+            background: radial-gradient(circle, rgba(255, 0, 127, 0.45), transparent 70%);
+            animation-delay: -4.5s;
+        }
+
+        .glow-purple {
+            top: 40%;
+            left: 45%;
+            width: 450px;
+            height: 450px;
+            background: radial-gradient(circle, rgba(157, 0, 255, 0.35), transparent 70%);
+            animation-delay: -2s;
+        }
+
+        @keyframes orbFloat {
+            0% {
+                transform: translate(0, 0) scale(1);
+            }
+
+            100% {
+                transform: translate(45px, -40px) scale(1.18);
+            }
+        }
+
+        /* Matrix & Particle Canvas */
+        #matrixCanvas {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 2;
+            opacity: 0.75;
+        }
+
+        /* CRT Raster Scanlines & Vignette */
+        .scanline-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background:
+                linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.25) 50%),
+                linear-gradient(90deg, rgba(255, 0, 0, 0.03), rgba(0, 255, 0, 0.01), rgba(0, 0, 255, 0.03));
+            background-size: 100% 3px, 6px 100%;
+            pointer-events: none;
+            z-index: 4;
+            opacity: 0.55;
+        }
+
+        .vignette-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            box-shadow: inset 0 0 120px rgba(0, 0, 0, 0.85);
+            pointer-events: none;
+            z-index: 4;
+        }
+
+        /* Top Navigation Bar */
+        .arcade-nav {
+            position: sticky;
+            top: 0;
+            width: 100%;
+            background: rgba(8, 8, 16, 0.92);
+            backdrop-filter: blur(20px);
+            border-bottom: 1.5px solid rgba(0, 243, 255, 0.35);
+            box-shadow: 0 4px 35px rgba(0, 243, 255, 0.18);
+            padding: 0.75rem 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            z-index: 100;
+        }
+
+        .nav-brand {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            text-decoration: none;
+        }
+
+        .nav-logo-wrap {
+            position: relative;
+        }
+
+        .nav-logo {
+            width: 44px;
+            height: 44px;
+            border-radius: 12px;
+            box-shadow: 0 0 25px rgba(255, 0, 127, 0.6);
+            transition: transform 0.3s ease;
+            position: relative;
+            z-index: 2;
+        }
+
+        .nav-brand:hover .nav-logo {
+            transform: scale(1.1) rotate(-6deg);
+        }
+
+        .brand-title-wrap {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .brand-title {
+            font-family: 'Press Start 2P', cursive;
+            font-size: 1.25rem;
+            letter-spacing: 2px;
+            background: linear-gradient(45deg, var(--neon-cyan), #ffffff, var(--neon-pink));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            text-shadow: 0 0 15px rgba(0, 243, 255, 0.5);
+        }
+
+        .brand-badge {
+            font-size: 0.65rem;
+            font-family: 'Share Tech Mono', monospace;
+            color: var(--neon-green);
+            letter-spacing: 1.5px;
+        }
+
+        .nav-user-panel {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .cyber-clock {
+            font-family: 'Share Tech Mono', monospace;
+            font-size: 0.85rem;
+            color: var(--neon-yellow);
+            background: rgba(255, 230, 0, 0.08);
+            border: 1px solid rgba(255, 230, 0, 0.3);
+            padding: 5px 12px;
+            border-radius: 8px;
+            letter-spacing: 1.5px;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .user-badge {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            background: rgba(0, 243, 255, 0.08);
+            border: 1px solid rgba(0, 243, 255, 0.35);
+            border-radius: 20px;
+            padding: 6px 16px;
+            font-size: 0.9rem;
+            font-family: 'Orbitron', sans-serif;
+            color: var(--neon-cyan);
+            box-shadow: 0 0 20px rgba(0, 243, 255, 0.15);
+        }
+
+        .plays-count {
+            background: rgba(255, 0, 127, 0.25);
+            color: #ff99cc;
+            border: 1px solid rgba(255, 0, 127, 0.4);
+            border-radius: 12px;
+            padding: 2px 10px;
+            font-size: 0.75rem;
+            font-weight: 700;
+        }
+
+        .nav-btn {
+            background: rgba(0, 243, 255, 0.08);
+            border: 1px solid rgba(0, 243, 255, 0.4);
+            color: #ffffff;
+            padding: 8px 16px;
+            border-radius: 10px;
+            font-family: 'Orbitron', sans-serif;
+            font-size: 0.82rem;
+            cursor: pointer;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            transition: all 0.25s ease;
+        }
+
+        .nav-btn:hover {
+            background: rgba(0, 243, 255, 0.25);
+            border-color: var(--neon-cyan);
+            box-shadow: 0 0 25px rgba(0, 243, 255, 0.5);
+            transform: translateY(-2px);
+        }
+
+        .logout-btn {
+            border-color: rgba(255, 51, 68, 0.4);
+            color: #ff8591;
+            background: rgba(255, 51, 68, 0.08);
+        }
+
+        .logout-btn:hover {
+            background: rgba(255, 51, 68, 0.25);
+            border-color: var(--neon-red);
+            box-shadow: 0 0 25px rgba(255, 51, 68, 0.6);
+            transform: translateY(-2px);
+        }
+
+        /* Container & Main Layout */
+        .container {
+            position: relative;
+            z-index: 10;
+            max-width: 1440px;
+            margin: 0 auto;
+            padding: 24px 28px 100px 28px;
+        }
+
+        /* Hero Banner with Glitch Animation */
+        .hero-banner {
+            text-align: center;
+            margin: 2rem 0 2.2rem 0;
+            position: relative;
+        }
+
+        /* Pure CSS RGB Glitch Title */
+        .glitch-title {
+            position: relative;
+            font-family: 'Orbitron', sans-serif;
+            font-weight: 900;
+            font-size: 4rem;
+            text-transform: uppercase;
+            letter-spacing: 8px;
+            color: #ffffff;
+            display: inline-block;
+            text-shadow:
+                0 0 20px rgba(0, 243, 255, 0.7),
+                0 0 40px rgba(255, 0, 127, 0.5);
+            margin-bottom: 0.8rem;
+        }
+
+        .glitch-title::before,
+        .glitch-title::after {
+            content: attr(data-text);
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            clip: rect(0, 0, 0, 0);
+        }
+
+        .glitch-title::before {
+            left: -3px;
+            text-shadow: 3px 0 var(--neon-pink);
+            animation: glitchAnim1 2.5s infinite linear alternate-reverse;
+        }
+
+        .glitch-title::after {
+            left: 3px;
+            text-shadow: -3px 0 var(--neon-cyan);
+            animation: glitchAnim2 3s infinite linear alternate-reverse;
+        }
+
+        @keyframes glitchAnim1 {
+            0% {
+                clip: rect(10px, 9999px, 30px, 0);
+                transform: skew(0.3deg);
+            }
+
+            20% {
+                clip: rect(60px, 9999px, 85px, 0);
+                transform: skew(-0.5deg);
+            }
+
+            40% {
+                clip: rect(25px, 9999px, 50px, 0);
+                transform: skew(0.8deg);
+            }
+
+            60% {
+                clip: rect(80px, 9999px, 110px, 0);
+                transform: skew(-0.3deg);
+            }
+
+            80% {
+                clip: rect(15px, 9999px, 45px, 0);
+                transform: skew(0.5deg);
+            }
+
+            100% {
+                clip: rect(50px, 9999px, 75px, 0);
+                transform: skew(-0.2deg);
+            }
+        }
+
+        @keyframes glitchAnim2 {
+            0% {
+                clip: rect(40px, 9999px, 60px, 0);
+                transform: skew(-0.6deg);
+            }
+
+            25% {
+                clip: rect(10px, 9999px, 35px, 0);
+                transform: skew(0.4deg);
+            }
+
+            50% {
+                clip: rect(70px, 9999px, 95px, 0);
+                transform: skew(-0.4deg);
+            }
+
+            75% {
+                clip: rect(30px, 9999px, 55px, 0);
+                transform: skew(0.7deg);
+            }
+
+            100% {
+                clip: rect(85px, 9999px, 115px, 0);
+                transform: skew(-0.3deg);
+            }
+        }
+
+        .hero-subtitle {
+            color: #a5b4d4;
+            font-size: 1.15rem;
+            letter-spacing: 3px;
+            font-family: 'Share Tech Mono', monospace;
+            text-transform: uppercase;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 12px;
+        }
+
+        .hero-status-pill {
+            background: rgba(0, 255, 136, 0.12);
+            border: 1px solid var(--neon-green);
+            color: var(--neon-green);
+            padding: 3px 10px;
+            border-radius: 20px;
+            font-size: 0.75rem;
+            font-weight: 700;
+            animation: pulsePill 2s infinite;
+        }
+
+        @keyframes pulsePill {
+
+            0%,
+            100% {
+                box-shadow: 0 0 10px rgba(0, 255, 136, 0.3);
+            }
+
+            50% {
+                box-shadow: 0 0 20px rgba(0, 255, 136, 0.7);
+            }
+        }
+
+        /* Holographic Search & Matrix Filter Bar */
+        .arcade-filter-bar {
+            background: rgba(14, 14, 26, 0.85);
+            border: 1px solid rgba(0, 243, 255, 0.3);
+            border-radius: 18px;
+            padding: 1rem 1.5rem;
+            backdrop-filter: blur(16px);
+            margin: 2rem 0;
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: space-between;
+            align-items: center;
+            gap: 1rem;
+            box-shadow: 0 10px 35px rgba(0, 0, 0, 0.6);
+        }
+
+        .category-chips {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            flex-wrap: wrap;
+        }
+
+        .chip-btn {
+            background: rgba(255, 255, 255, 0.04);
+            border: 1px solid rgba(255, 255, 255, 0.12);
+            color: #b0c4de;
+            padding: 8px 16px;
+            border-radius: 12px;
+            font-family: 'Share Tech Mono', monospace;
+            font-size: 0.88rem;
+            letter-spacing: 1px;
+            cursor: pointer;
+            transition: all 0.25s ease;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .chip-btn:hover {
+            color: #ffffff;
+            border-color: var(--neon-cyan);
+            background: rgba(0, 243, 255, 0.15);
+            box-shadow: 0 0 15px rgba(0, 243, 255, 0.3);
+            transform: translateY(-2px);
+        }
+
+        .chip-btn.active {
+            background: linear-gradient(135deg, rgba(0, 243, 255, 0.3), rgba(255, 0, 127, 0.3));
+            color: #ffffff;
+            border-color: var(--neon-cyan);
+            font-weight: 700;
+            box-shadow: 0 0 20px rgba(0, 243, 255, 0.45);
+        }
+
+        .search-box-wrap {
+            position: relative;
+            min-width: 280px;
+        }
+
+        .search-icon {
+            position: absolute;
+            left: 14px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--neon-cyan);
+            font-size: 1rem;
+            pointer-events: none;
+        }
+
+        .search-input {
+            width: 100%;
+            background: rgba(5, 5, 12, 0.85);
+            border: 1.5px solid rgba(0, 243, 255, 0.35);
+            border-radius: 12px;
+            padding: 9px 14px 9px 40px;
+            color: #ffffff;
+            font-family: 'Share Tech Mono', monospace;
+            font-size: 0.92rem;
+            letter-spacing: 1px;
+            outline: none;
+            transition: all 0.3s;
+        }
+
+        .search-input:focus {
+            border-color: var(--neon-pink);
+            box-shadow: 0 0 20px rgba(255, 0, 127, 0.45);
+        }
+
+        .search-input::placeholder {
+            color: rgba(160, 175, 200, 0.45);
+        }
+
+        /* Games Grid */
+        .games-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(290px, 1fr));
+            gap: 32px;
+            padding: 10px 0;
+            perspective: 1200px;
+        }
+
+        /* Cyberpunk Interactive Game Card */
+        .game-card {
+            background: var(--card-bg);
+            border-radius: 22px;
+            overflow: hidden;
+            transition: transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275), box-shadow 0.4s ease, border-color 0.4s ease;
+            cursor: pointer;
+            position: relative;
+            backdrop-filter: blur(16px);
+            border: 1.5px solid rgba(0, 243, 255, 0.25);
+            box-shadow: 0 12px 35px rgba(0, 0, 0, 0.7);
+            display: flex;
+            flex-direction: column;
+        }
+
+        .game-card.hidden {
+            display: none;
+        }
+
+        /* Animated Conic Laser Perimeter on Hover */
+        .game-card::before {
+            content: '';
+            position: absolute;
+            top: -2px;
+            left: -2px;
+            right: -2px;
+            bottom: -2px;
+            border-radius: 24px;
+            background: conic-gradient(from 0deg at 50% 50%,
+                    var(--neon-cyan) 0deg,
+                    var(--neon-pink) 90deg,
+                    var(--neon-purple) 180deg,
+                    var(--neon-cyan) 270deg,
+                    var(--neon-cyan) 360deg);
+            z-index: -1;
+            opacity: 0;
+            transition: opacity 0.35s ease;
+            animation: rotateLaser 4s linear infinite;
+        }
+
+        @keyframes rotateLaser {
+            0% {
+                transform: rotate(0deg);
+            }
+
+            100% {
+                transform: rotate(360deg);
+            }
+        }
+
+        /* Holographic Sheen Layer */
+        .game-card::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 60%;
+            height: 100%;
+            background: linear-gradient(90deg,
+                    transparent,
+                    rgba(255, 255, 255, 0.15),
+                    transparent);
+            transform: skewX(-25deg);
+            transition: left 0.75s ease;
+            pointer-events: none;
+            z-index: 6;
+        }
+
+        .game-card:hover {
+            transform: translateY(-12px) scale(1.04);
+            border-color: transparent;
+            box-shadow: 0 22px 50px rgba(0, 243, 255, 0.45);
+        }
+
+        .game-card:hover::before {
+            opacity: 1;
+        }
+
+        .game-card:hover::after {
+            left: 140%;
+        }
+
+        /* Card Thumbnail */
+        .thumbnail-wrap {
+            position: relative;
+            width: 100%;
+            height: 220px;
+            overflow: hidden;
+            clip-path: polygon(0 0, 100% 0, 100% 90%, 0 100%);
+        }
+
+        .game-thumbnail {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            transition: transform 0.5s cubic-bezier(0.165, 0.84, 0.44, 1);
+        }
+
+        .game-card:hover .game-thumbnail {
+            transform: scale(1.12);
+        }
+
+        /* Card Badges */
+        .card-tag {
+            position: absolute;
+            top: 12px;
+            left: 12px;
+            background: rgba(0, 0, 0, 0.75);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            color: #d1d5db;
+            font-size: 0.65rem;
+            font-family: 'Share Tech Mono', monospace;
+            padding: 3px 8px;
+            border-radius: 8px;
+            backdrop-filter: blur(8px);
+            z-index: 5;
+            letter-spacing: 1px;
+        }
+
+        /* Card Content Area */
+        .card-content {
+            padding: 1.2rem 1.1rem;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 6px;
+            background: rgba(10, 10, 20, 0.7);
+        }
+
+        .game-title {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 1.15rem;
+            font-weight: 700;
+            background: linear-gradient(45deg, #ffffff, #dcdcf8);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            text-align: center;
+            letter-spacing: 1.5px;
+            position: relative;
+        }
+
+        .game-meta-row {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 0.72rem;
+            color: #8899bb;
+            font-family: 'Share Tech Mono', monospace;
+        }
+
+        .game-action-pill {
+            margin-top: 6px;
+            padding: 4px 14px;
+            border-radius: 20px;
+            background: rgba(0, 243, 255, 0.08);
+            border: 1px solid rgba(0, 243, 255, 0.3);
+            color: var(--neon-cyan);
+            font-size: 0.72rem;
+            font-family: 'Orbitron', sans-serif;
+            letter-spacing: 1px;
+            transition: all 0.2s;
+        }
+
+        .game-card:hover .game-action-pill {
+            background: var(--neon-cyan);
+            color: #000000;
+            font-weight: 700;
+            box-shadow: 0 0 15px var(--neon-cyan);
+        }
+
+        /* History Modal */
+        .modal-overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            background: rgba(0, 0, 0, 0.88);
+            backdrop-filter: blur(16px);
+            z-index: 500;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+
+        .modal-overlay.active {
+            display: flex;
+        }
+
+        .history-modal {
+            background: rgba(12, 12, 24, 0.96);
+            border: 2px solid var(--neon-cyan);
+            border-radius: 24px;
+            width: 100%;
+            max-width: 650px;
+            max-height: 80vh;
+            display: flex;
+            flex-direction: column;
+            box-shadow: 0 0 60px rgba(0, 243, 255, 0.35);
+            animation: modalFade 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+
+        @keyframes modalFade {
+            from {
+                opacity: 0;
+                transform: scale(0.92) translateY(20px);
+            }
+
+            to {
+                opacity: 1;
+                transform: scale(1) translateY(0);
+            }
+        }
+
+        .modal-header {
+            padding: 1.3rem 1.8rem;
+            border-bottom: 1px solid rgba(0, 243, 255, 0.25);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .modal-header h2 {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 1.35rem;
+            color: var(--neon-cyan);
+            letter-spacing: 1.5px;
+        }
+
+        .modal-close {
+            background: none;
+            border: none;
+            color: #888;
+            font-size: 1.6rem;
+            cursor: pointer;
+            transition: color 0.2s;
+        }
+
+        .modal-close:hover {
+            color: #fff;
+        }
+
+        .modal-body {
+            padding: 1.6rem;
+            overflow-y: auto;
+            flex: 1;
+        }
+
+        .history-list {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .history-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: rgba(255, 255, 255, 0.04);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            border-radius: 12px;
+            padding: 14px 18px;
+            transition: border-color 0.3s ease;
+        }
+
+        .history-item:hover {
+            border-color: var(--neon-cyan);
+            background: rgba(0, 243, 255, 0.05);
+        }
+
+        .history-game-name {
+            font-weight: 700;
+            color: #ff99bb;
+            font-family: 'Orbitron', sans-serif;
+            font-size: 1rem;
+        }
+
+        .history-time {
+            font-size: 0.85rem;
+            color: #8888b0;
+            font-family: 'Share Tech Mono', monospace;
+        }
+
+        .empty-history {
+            text-align: center;
+            color: #8888b0;
+            padding: 3rem 0;
+            font-size: 1rem;
+            font-family: 'Share Tech Mono', monospace;
+        }
+
+        /* Fullscreen Game Frame */
+        .fullscreen-container {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            background: rgba(0, 0, 0, 0.98);
+            z-index: 1000;
+            opacity: 0;
+            transition: opacity 0.3s;
+        }
+
+        .fullscreen-container.active {
+            display: block;
+            opacity: 1;
+        }
+
+        .fullscreen-game {
+            width: 100%;
+            height: 100%;
+            border: none;
+            transform: scale(0.97);
+            transition: transform 0.3s;
+        }
+
+        .fullscreen-game.active {
+            transform: scale(1);
+        }
+
+        .close-btn {
+            position: absolute;
+            top: 18px;
+            right: 22px;
+            color: white;
+            background: rgba(255, 0, 50, 0.7);
+            border: 1.5px solid rgba(255, 255, 255, 0.4);
+            width: 46px;
+            height: 46px;
+            border-radius: 50%;
+            font-size: 22px;
+            cursor: pointer;
+            z-index: 1001;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.25s;
+            box-shadow: 0 0 20px rgba(255, 0, 50, 0.5);
+        }
+
+        .close-btn:hover {
+            background: rgba(255, 0, 50, 0.95);
+            transform: scale(1.15) rotate(90deg);
+            box-shadow: 0 0 30px rgba(255, 0, 50, 0.8);
+        }
+    </style>
+</head>
+
+<body>
+    <!-- 3D Synthwave Grid Floor -->
+    <div class="cyber-grid-floor"></div>
+
+    <!-- Glowing Nebula Orbs -->
+    <div class="ambient-glow glow-cyan"></div>
+    <div class="ambient-glow glow-pink"></div>
+    <div class="ambient-glow glow-purple"></div>
+
+    <!-- Scanline Raster & Vignette Overlay -->
+    <div class="scanline-overlay"></div>
+    <div class="vignette-overlay"></div>
+
+    <!-- Interactive Matrix Rain / Meteor Constellation Canvas -->
+    <canvas id="matrixCanvas"></canvas>
+
+    <!-- Top Navigation Bar -->
+    <nav class="arcade-nav">
+        <a href="{{ url_for('games') }}" class="nav-brand">
+            <div class="nav-logo-wrap">
+                <img src="{{ url_for('static', filename='Glitch4ce.webp') }}" alt="Glitch4ce" class="nav-logo">
+            </div>
+            <div class="brand-title-wrap">
+                <span class="brand-title">GLITCH4CE</span>
+                <span class="brand-badge">⚡ NEURAL ARCADE V2.5</span>
+            </div>
+        </a>
+        <div class="nav-user-panel">
+            <div class="cyber-clock" id="cyberClock">
+                <span>⏱️</span>
+                <span id="clockDisplay">--:--:--</span>
+            </div>
+            <div class="user-badge">
+                <span>👾</span>
+                <strong>{{ username }}</strong>
+                <span class="plays-count">{{ game_count }} Plays</span>
+            </div>
+            <button class="nav-btn" id="sfxToggleBtn" onclick="toggleArcadeAudio()">
+                <span id="sfxIcon">🔊</span> SFX ON
+            </button>
+            <button class="nav-btn" onclick="openHistoryModal()">📜 History</button>
+            <a href="{{ url_for('logout') }}" class="nav-btn logout-btn">🚪 Logout</a>
+        </div>
+    </nav>
+
+    <div class="container">
+        <!-- Hero Banner with Glitch Typography -->
+        <div class="hero-banner">
+            <h1 class="glitch-title" data-text="ARCADE HUB">ARCADE HUB</h1>
+            <p class="hero-subtitle">
+                <span>// SELECT A MINI-GAME TO LAUNCH SYSTEM //</span>
+                <span class="hero-status-pill">16 MODULES ACTIVE</span>
+            </p>
+            {% with messages = get_flashed_messages(with_categories=true) %}
+                {% if messages %}
+                    <div style="display: flex; justify-content: center; gap: 10px; margin-top: 15px;">
+                        {% for category, msg in messages %}
+                            <div class="flash-msg-arcade" style="background: rgba(0, 243, 255, 0.15); border: 1.5px solid var(--neon-cyan); color: #fff; padding: 10px 20px; border-radius: 10px; font-family: 'Share Tech Mono', monospace; font-size: 0.9rem; text-transform: uppercase; letter-spacing: 1px; box-shadow: 0 0 20px rgba(0, 243, 255, 0.4);">
+                                ⚡ [SYS.MSG] // {{ msg }}
+                            </div>
+                        {% endfor %}
+                    </div>
+                {% endif %}
+            {% endwith %}
+        </div>
+
+        <!-- Filter & Search Matrix Bar -->
+        <div class="arcade-filter-bar">
+            <div class="category-chips">
+                <button class="chip-btn active" data-filter="all" onclick="filterCategory('all', this)">
+                    <span>⚡</span> ALL (<span id="countAll">16</span>)
+                </button>
+                <button class="chip-btn" data-filter="action" onclick="filterCategory('action', this)">
+                    <span>🚀</span> SPEED & ACTION
+                </button>
+                <button class="chip-btn" data-filter="puzzle" onclick="filterCategory('puzzle', this)">
+                    <span>🧩</span> PUZZLE & MIND
+                </button>
+                <button class="chip-btn" data-filter="classic" onclick="filterCategory('classic', this)">
+                    <span>🕹️</span> RETRO CLASSICS
+                </button>
+            </div>
+
+            <div class="search-box-wrap">
+                <span class="search-icon">🔍</span>
+                <input type="text" class="search-input" id="gameSearch" placeholder="SEARCH MODULE BY TITLE..." oninput="handleSearch(this.value)">
+            </div>
+        </div>
+
+        <!-- Games Grid (All 16 Games) -->
+        <div class="games-grid" id="gamesGrid">
+            <!-- 1. 2048 -->
+            <div class="game-card" data-category="puzzle" data-game="{{ url_for('updown') }}" data-game-name="2048">
+                <div class="thumbnail-wrap">
+                    <span class="card-tag">PUZZLE</span>
+                    <img src="/static/Games/Images/2048.webp" alt="2048" class="game-thumbnail">
+                </div>
+                <div class="card-content">
+                    <div class="game-title">2048</div>
+                    <div class="game-meta-row"><span>🔢 Slide & Merge</span></div>
+                    <div class="game-action-pill">▶ LAUNCH</div>
+                </div>
+            </div>
+
+            <!-- 2. Crossword -->
+            <div class="game-card" data-category="puzzle" data-game="{{ url_for('crossword') }}" data-game-name="Crossword">
+                <div class="thumbnail-wrap">
+                    <span class="card-tag">BRAIN</span>
+                    <img src="/static/Games/Images/Cross word.webp" alt="Cross word" class="game-thumbnail">
+                </div>
+                <div class="card-content">
+                    <div class="game-title">Crossword</div>
+                    <div class="game-meta-row"><span>📝 Word Finder</span></div>
+                    <div class="game-action-pill">▶ LAUNCH</div>
+                </div>
+            </div>
+
+            <!-- 3. Flappy Bird -->
+            <div class="game-card" data-category="action" data-game="{{ url_for('flappybird') }}" data-game-name="Flappy Bird">
+                <div class="thumbnail-wrap">
+                    <span class="card-tag">ARCADE</span>
+                    <img src="/static/Games/Images/Flappy Birds.webp" alt="Flappy Birds" class="game-thumbnail">
+                </div>
+                <div class="card-content">
+                    <div class="game-title">Flappy Bird</div>
+                    <div class="game-meta-row"><span>🪽 Infinite Flap</span></div>
+                    <div class="game-action-pill">▶ LAUNCH</div>
+                </div>
+            </div>
+
+            <!-- 4. Maze -->
+            <div class="game-card" data-category="puzzle" data-game="{{ url_for('maze') }}" data-game-name="Maze">
+                <div class="thumbnail-wrap">
+                    <span class="card-tag">PUZZLE</span>
+                    <img src="/static/Games/Images/maze.webp" alt="Maze" class="game-thumbnail">
+                </div>
+                <div class="card-content">
+                    <div class="game-title">Maze Runner</div>
+                    <div class="game-meta-row"><span>🌀 Path Finder</span></div>
+                    <div class="game-action-pill">▶ LAUNCH</div>
+                </div>
+            </div>
+
+            <!-- 5. Memory Match -->
+            <div class="game-card" data-category="puzzle" data-game="{{ url_for('memorymatch') }}" data-game-name="Memory Match">
+                <div class="thumbnail-wrap">
+                    <span class="card-tag">MEMORY</span>
+                    <img src="/static/Games/Images/MemoryMatch.webp" alt="Memory Match" class="game-thumbnail">
+                </div>
+                <div class="card-content">
+                    <div class="game-title">Memory Match</div>
+                    <div class="game-meta-row"><span>🃏 Card Pair</span></div>
+                    <div class="game-action-pill">▶ LAUNCH</div>
+                </div>
+            </div>
+
+            <!-- 6. Pong -->
+            <div class="game-card" data-category="action" data-game="{{ url_for('pong') }}" data-game-name="Pong">
+                <div class="thumbnail-wrap">
+                    <span class="card-tag">RETRO</span>
+                    <img src="/static/Games/Images/pong.webp" alt="Pong" class="game-thumbnail">
+                </div>
+                <div class="card-content">
+                    <div class="game-title">Cyber Pong</div>
+                    <div class="game-meta-row"><span>🏓 Duel Paddle</span></div>
+                    <div class="game-action-pill">▶ LAUNCH</div>
+                </div>
+            </div>
+
+            <!-- 7. Quiz -->
+            <div class="game-card" data-category="classic" data-game="{{ url_for('quiz') }}" data-game-name="Quiz">
+                <div class="thumbnail-wrap">
+                    <span class="card-tag">TRIVIA</span>
+                    <img src="/static/Games/Images/quiz.webp" alt="Quiz" class="game-thumbnail">
+                </div>
+                <div class="card-content">
+                    <div class="game-title">Cyber Quiz</div>
+                    <div class="game-meta-row"><span>🧠 Brain Trivia</span></div>
+                    <div class="game-action-pill">▶ LAUNCH</div>
+                </div>
+            </div>
+
+            <!-- 8. Relationship -->
+            <div class="game-card" data-category="classic" data-game="{{ url_for('relations') }}" data-game-name="Relationship">
+                <div class="thumbnail-wrap">
+                    <span class="card-tag">LOGIC</span>
+                    <img src="/static/Games/Images/Relationship.webp" alt="Relationship" class="game-thumbnail">
+                </div>
+                <div class="card-content">
+                    <div class="game-title">Relationship</div>
+                    <div class="game-meta-row"><span>👥 Match Logic</span></div>
+                    <div class="game-action-pill">▶ LAUNCH</div>
+                </div>
+            </div>
+
+            <!-- 9. Math Sequence -->
+            <div class="game-card" data-category="puzzle" data-game="{{ url_for('mathsequence') }}" data-game-name="Math Sequence">
+                <div class="thumbnail-wrap">
+                    <span class="card-tag">MATH</span>
+                    <img src="/static/Games/Images/Sequence.webp" alt="Sequence" class="game-thumbnail">
+                </div>
+                <div class="card-content">
+                    <div class="game-title">Math Sequence</div>
+                    <div class="game-meta-row"><span>➕ Number Chain</span></div>
+                    <div class="game-action-pill">▶ LAUNCH</div>
+                </div>
+            </div>
+
+            <!-- 10. Stone Paper Scissor -->
+            <div class="game-card" data-category="classic" data-game="{{ url_for('stonepapersissor') }}" data-game-name="Stone Paper Scissor">
+                <div class="thumbnail-wrap">
+                    <span class="card-tag">CLASSIC</span>
+                    <img src="/static/Games/Images/stonepaperscissor.webp" alt="Stone Paper Scissor" class="game-thumbnail">
+                </div>
+                <div class="card-content">
+                    <div class="game-title">R.P.S. Arena</div>
+                    <div class="game-meta-row"><span>✂️ Duel Bot</span></div>
+                    <div class="game-action-pill">▶ LAUNCH</div>
+                </div>
+            </div>
+
+            <!-- 11. Tic Tac Toe -->
+            <div class="game-card" data-category="classic" data-game="{{ url_for('tictactoe') }}" data-game-name="Tic Tac Toe">
+                <div class="thumbnail-wrap">
+                    <span class="card-tag">CLASSIC</span>
+                    <img src="/static/Games/Images/TicTacToe.webp" alt="Tic Tac Toe" class="game-thumbnail">
+                </div>
+                <div class="card-content">
+                    <div class="game-title">Tic Tac Toe</div>
+                    <div class="game-meta-row"><span>❌ Grid Combat</span></div>
+                    <div class="game-action-pill">▶ LAUNCH</div>
+                </div>
+            </div>
+
+            <!-- 12. Tower Block -->
+            <div class="game-card" data-category="action" data-game="{{ url_for('towerblock') }}" data-game-name="Tower Block">
+                <div class="thumbnail-wrap">
+                    <span class="card-tag">TIMING</span>
+                    <img src="/static/Games/Images/towerblock.webp" alt="Tower Block" class="game-thumbnail">
+                </div>
+                <div class="card-content">
+                    <div class="game-title">Tower Block</div>
+                    <div class="game-meta-row"><span>🏗️ Stack High</span></div>
+                    <div class="game-action-pill">▶ LAUNCH</div>
+                </div>
+            </div>
+
+            <!-- 13. Tricky -->
+            <div class="game-card" data-category="puzzle" data-game="{{ url_for('tricky') }}" data-game-name="Tricky">
+                <div class="thumbnail-wrap">
+                    <span class="card-tag">TRICKY</span>
+                    <img src="/static/Games/Images/tricky.webp" alt="Tricky" class="game-thumbnail">
+                </div>
+                <div class="card-content">
+                    <div class="game-title">Tricky Mind</div>
+                    <div class="game-meta-row"><span>💡 Mind Bender</span></div>
+                    <div class="game-action-pill">▶ LAUNCH</div>
+                </div>
+            </div>
+
+            <!-- 14. Whack a Mole -->
+            <div class="game-card" data-category="action" data-game="{{ url_for('mole') }}" data-game-name="Whack a Mole">
+                <div class="thumbnail-wrap">
+                    <span class="card-tag">ACTION</span>
+                    <img src="/static/Games/Images/wake a mole.webp" alt="Whack a Mole" class="game-thumbnail">
+                </div>
+                <div class="card-content">
+                    <div class="game-title">Whack a Mole</div>
+                    <div class="game-meta-row"><span>🔨 Reflex Strike</span></div>
+                    <div class="game-action-pill">▶ LAUNCH</div>
+                </div>
+            </div>
+
+            <!-- 15. Candy Crush -->
+            <div class="game-card" data-category="puzzle" data-game="{{ url_for('Candy_Crush') }}" data-game-name="Candy Crush">
+                <div class="thumbnail-wrap">
+                    <span class="card-tag">MATCH 3</span>
+                    <img src="/static/Games/Images/cc.webp" alt="Candy Crush" class="game-thumbnail">
+                </div>
+                <div class="card-content">
+                    <div class="game-title">Candy Crush</div>
+                    <div class="game-meta-row"><span>🍬 Sugar Match</span></div>
+                    <div class="game-action-pill">▶ LAUNCH</div>
+                </div>
+            </div>
+
+            <!-- 16. SpeedType Pro -->
+            <div class="game-card" data-category="action" data-game="{{ url_for('speedtype') }}" data-game-name="SpeedType Pro">
+                <div class="thumbnail-wrap">
+                    <span class="card-tag">SPEED</span>
+                    <img src="/static/Games/Images/speedtype.webp" alt="SpeedType Pro" class="game-thumbnail">
+                </div>
+                <div class="card-content">
+                    <div class="game-title">SpeedType Pro</div>
+                    <div class="game-meta-row"><span>⌨️ WPM Speed Trials</span></div>
+                    <div class="game-action-pill">▶ LAUNCH</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- History Modal -->
+    <div class="modal-overlay" id="historyModal" onclick="closeHistoryModalOnOverlay(event)">
+        <div class="history-modal">
+            <div class="modal-header">
+                <h2>📜 Gameplay Activity Log</h2>
+                <button class="modal-close" onclick="closeHistoryModal()">✕</button>
+            </div>
+            <div class="modal-body">
+                {% if game_history %}
+                <div class="history-list">
+                    {% for item in game_history %}
+                    <div class="history-item">
+                        <span class="history-game-name">{{ item[0] }}</span>
+                        <span class="history-time">{{ item[1] }}</span>
+                    </div>
+                    {% endfor %}
+                </div>
+                {% else %}
+                <p class="empty-history">No games played yet. Pick a game from the arcade to start tracking!</p>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+
+    <!-- Fullscreen Game Container Frame -->
+    <div class="fullscreen-container">
+        <button class="close-btn" onclick="closeGame()" title="Close Game">✕</button>
+        <iframe class="fullscreen-game"></iframe>
+    </div>
+
+    <script>
+        // Web Audio Synthesizer for Arcade UI Audio
+        class ArcadeAudioEngine {
+            constructor() {
+                this.ctx = null;
+                this.enabled = true;
+            }
+
+            init() {
+                if (!this.ctx) {
+                    const AudioCtx = window.AudioContext || window.webkitAudioContext;
+                    if (AudioCtx) this.ctx = new AudioCtx();
+                }
+                if (this.ctx && this.ctx.state === 'suspended') {
+                    this.ctx.resume();
+                }
+            }
+
+            playHover() {
+                if (!this.enabled) return;
+                this.init();
+                if (!this.ctx) return;
+
+                const osc = this.ctx.createOscillator();
+                const gain = this.ctx.createGain();
+                osc.type = 'sine';
+                osc.frequency.setValueAtTime(880, this.ctx.currentTime);
+                osc.frequency.exponentialRampToValueAtTime(1200, this.ctx.currentTime + 0.05);
+
+                gain.gain.setValueAtTime(0.04, this.ctx.currentTime);
+                gain.gain.exponentialRampToValueAtTime(0.001, this.ctx.currentTime + 0.05);
+
+                osc.connect(gain);
+                gain.connect(this.ctx.destination);
+                osc.start();
+                osc.stop(this.ctx.currentTime + 0.05);
+            }
+
+            playLaunch() {
+                if (!this.enabled) return;
+                this.init();
+                if (!this.ctx) return;
+
+                [300, 600, 1200, 1800].forEach((freq, idx) => {
+                    const osc = this.ctx.createOscillator();
+                    const gain = this.ctx.createGain();
+                    osc.type = 'sawtooth';
+                    osc.frequency.setValueAtTime(freq, this.ctx.currentTime + idx * 0.04);
+                    gain.gain.setValueAtTime(0.08, this.ctx.currentTime + idx * 0.04);
+                    gain.gain.exponentialRampToValueAtTime(0.001, this.ctx.currentTime + idx * 0.04 + 0.12);
+                    osc.connect(gain);
+                    gain.connect(this.ctx.destination);
+                    osc.start(this.ctx.currentTime + idx * 0.04);
+                    osc.stop(this.ctx.currentTime + idx * 0.04 + 0.12);
+                });
+            }
+        }
+
+        const arcadeAudio = new ArcadeAudioEngine();
+
+        function toggleArcadeAudio() {
+            arcadeAudio.enabled = !arcadeAudio.enabled;
+            arcadeAudio.init();
+            document.getElementById('sfxIcon').textContent = arcadeAudio.enabled ? '🔊' : '🔇';
+            document.getElementById('sfxToggleBtn').innerHTML = `<span id="sfxIcon">${arcadeAudio.enabled ? '🔊' : '🔇'}</span> SFX ${arcadeAudio.enabled ? 'ON' : 'MUTED'}`;
+        }
+
+        // Live Cyber Clock (Local System Time)
+        function updateCyberClock() {
+            const now = new Date();
+            const timeStr = now.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: true });
+            const clockEl = document.getElementById('clockDisplay');
+            if (clockEl) clockEl.textContent = timeStr;
+        }
+        setInterval(updateCyberClock, 1000);
+        updateCyberClock();
+
+        // Interactive Matrix Rain & Meteor Particle Canvas System
+        class CyberCanvasSystem {
+            constructor() {
+                this.canvas = document.getElementById('matrixCanvas');
+                this.ctx = this.canvas.getContext('2d');
+                this.resize();
+
+                this.characters = 'GLITCH4CE010101XYZΩΨ0123456789アイウエオカキクケコサシスセソタチツテト';
+                this.fontSize = 14;
+                this.columns = Math.floor(this.canvas.width / this.fontSize);
+                this.drops = Array(this.columns).fill(1).map(() => Math.floor(Math.random() * -50));
+
+                this.particles = [];
+                this.mouse = { x: null, y: null, radius: 140 };
+
+                this.initParticles();
+                this.animate();
+
+                window.addEventListener('resize', () => {
+                    this.resize();
+                    this.columns = Math.floor(this.canvas.width / this.fontSize);
+                    this.drops = Array(this.columns).fill(1).map(() => Math.floor(Math.random() * -50));
+                });
+
+                window.addEventListener('mousemove', (e) => {
+                    this.mouse.x = e.x;
+                    this.mouse.y = e.y;
+                });
+
+                window.addEventListener('mouseleave', () => {
+                    this.mouse.x = null;
+                    this.mouse.y = null;
+                });
+            }
+
+            resize() {
+                this.canvas.width = window.innerWidth;
+                this.canvas.height = window.innerHeight;
+            }
+
+            initParticles() {
+                this.particles = [];
+                const count = Math.min(50, Math.floor((this.canvas.width * this.canvas.height) / 25000));
+                for (let i = 0; i < count; i++) {
+                    this.particles.push({
+                        x: Math.random() * this.canvas.width,
+                        y: Math.random() * this.canvas.height,
+                        vx: (Math.random() - 0.5) * 0.8,
+                        vy: (Math.random() - 0.5) * 0.8,
+                        size: Math.random() * 2 + 1,
+                        color: i % 2 === 0 ? 'rgba(0, 243, 255, ' : 'rgba(255, 0, 127, '
+                    });
+                }
+            }
+
+            animate() {
+                this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
+
+                // Subtle Matrix Digital Rain Streamers
+                this.ctx.font = `${this.fontSize}px 'JetBrains Mono', monospace`;
+                for (let i = 0; i < this.drops.length; i += 2) {
+                    const text = this.characters.charAt(Math.floor(Math.random() * this.characters.length));
+                    const x = i * this.fontSize;
+                    const y = this.drops[i] * this.fontSize;
+
+                    if (y > 0 && y < this.canvas.height) {
+                        this.ctx.fillStyle = 'rgba(0, 243, 255, 0.28)';
+                        this.ctx.fillText(text, x, y);
+                    }
+
+                    if (y > this.canvas.height && Math.random() > 0.985) {
+                        this.drops[i] = 0;
+                    }
+                    this.drops[i]++;
+                }
+
+                // Interactive Connected Network Constellation
+                for (let i = 0; i < this.particles.length; i++) {
+                    const p = this.particles[i];
+                    p.x += p.vx;
+                    p.y += p.vy;
+
+                    if (p.x < 0 || p.x > this.canvas.width) p.vx *= -1;
+                    if (p.y < 0 || p.y > this.canvas.height) p.vy *= -1;
+
+                    if (this.mouse.x !== null && this.mouse.y !== null) {
+                        const dx = p.x - this.mouse.x;
+                        const dy = p.y - this.mouse.y;
+                        const dist = Math.sqrt(dx * dx + dy * dy);
+                        if (dist < this.mouse.radius) {
+                            const angle = Math.atan2(dy, dx);
+                            const force = (this.mouse.radius - dist) / this.mouse.radius;
+                            p.x += Math.cos(angle) * force * 2.5;
+                            p.y += Math.sin(angle) * force * 2.5;
+                        }
+                    }
+
+                    this.ctx.beginPath();
+                    this.ctx.arc(p.x, p.y, p.size, 0, Math.PI * 2);
+                    this.ctx.fillStyle = p.color + '0.8)';
+                    this.ctx.fill();
+
+                    for (let j = i + 1; j < this.particles.length; j++) {
+                        const p2 = this.particles[j];
+                        const dx = p.x - p2.x;
+                        const dy = p.y - p2.y;
+                        const dist = Math.sqrt(dx * dx + dy * dy);
+
+                        if (dist < 130) {
+                            this.ctx.beginPath();
+                            this.ctx.moveTo(p.x, p.y);
+                            this.ctx.lineTo(p2.x, p2.y);
+                            const alpha = (1 - dist / 130) * 0.22;
+                            this.ctx.strokeStyle = `rgba(0, 243, 255, ${alpha})`;
+                            this.ctx.lineWidth = 1;
+                            this.ctx.stroke();
+                        }
+                    }
+                }
+
+                requestAnimationFrame(() => this.animate());
+            }
+        }
+
+        new CyberCanvasSystem();
+
+        // Category Filter & Search Logic
+        function filterCategory(cat, btn) {
+            arcadeAudio.playHover();
+            document.querySelectorAll('.chip-btn').forEach(b => b.classList.remove('active'));
+            if (btn) btn.classList.add('active');
+
+            const cards = document.querySelectorAll('.game-card');
+            cards.forEach(card => {
+                const matchCategory = (cat === 'all' || card.dataset.category === cat);
+                const query = document.getElementById('gameSearch').value.toLowerCase().trim();
+                const matchSearch = card.dataset.gameName.toLowerCase().includes(query);
+
+                if (matchCategory && matchSearch) {
+                    card.classList.remove('hidden');
+                } else {
+                    card.classList.add('hidden');
+                }
+            });
+        }
+
+        function handleSearch(query) {
+            const activeChip = document.querySelector('.chip-btn.active');
+            const activeCategory = activeChip ? activeChip.dataset.filter : 'all';
+            const cleanQuery = query.toLowerCase().trim();
+
+            const cards = document.querySelectorAll('.game-card');
+            cards.forEach(card => {
+                const matchCategory = (activeCategory === 'all' || card.dataset.category === activeCategory);
+                const matchSearch = card.dataset.gameName.toLowerCase().includes(cleanQuery);
+
+                if (matchCategory && matchSearch) {
+                    card.classList.remove('hidden');
+                } else {
+                    card.classList.add('hidden');
+                }
+            });
+        }
+
+        // Live History Fetcher and Modal Handlers
+        async function refreshHistoryData() {
+            try {
+                const res = await fetch('/api/history');
+                if (!res.ok) return;
+                const data = await res.json();
+
+                const badge = document.querySelector('.plays-count');
+                if (badge && data.count !== undefined) {
+                    badge.textContent = `${data.count} Plays`;
+                }
+
+                const modalBody = document.querySelector('.modal-body');
+                if (modalBody) {
+                    if (data.history && data.history.length > 0) {
+                        modalBody.innerHTML = `
+                            <div class="history-list">
+                                ${data.history.map(item => `
+                                    <div class="history-item">
+                                        <span class="history-game-name">${escapeHtml(item.game_name)}</span>
+                                        <span class="history-time">${escapeHtml(item.timestamp)}</span>
+                                    </div>
+                                `).join('')}
+                            </div>
+                        `;
+                    } else {
+                        modalBody.innerHTML = `<p class="empty-history">No games played yet. Pick a game from the arcade to start tracking!</p>`;
+                    }
+                }
+            } catch (err) {
+                console.error('Error fetching history:', err);
+            }
+        }
+
+        function escapeHtml(text) {
+            const div = document.createElement('div');
+            div.textContent = text || '';
+            return div.innerHTML;
+        }
+
+        function openHistoryModal() {
+            arcadeAudio.playLaunch();
+            refreshHistoryData();
+            document.getElementById('historyModal').classList.add('active');
+        }
+
+        function closeHistoryModal() {
+            document.getElementById('historyModal').classList.remove('active');
+        }
+
+        function closeHistoryModalOnOverlay(e) {
+            if (e.target.id === 'historyModal') {
+                closeHistoryModal();
+            }
+        }
+
+        // Game Tracking and Launch Logic (Unified modal for all 16 games)
+        let currentGame = null;
+        const fullscreenContainer = document.querySelector('.fullscreen-container');
+        const gameIframe = document.querySelector('.fullscreen-game');
+
+        document.querySelectorAll('.game-card').forEach(card => {
+            card.addEventListener('mouseenter', () => {
+                arcadeAudio.playHover();
+            });
+
+            // 3D Parallax Tilt Effect
+            card.addEventListener('mousemove', (e) => {
+                const rect = card.getBoundingClientRect();
+                const x = e.clientX - rect.left;
+                const y = e.clientY - rect.top;
+                const centerX = rect.width / 2;
+                const centerY = rect.height / 2;
+
+                card.style.transform = `
+                    rotateX(${(centerY - y) / 12}deg)
+                    rotateY(${(x - centerX) / 12}deg)
+                    translateY(-10px) scale(1.04)
+                `;
+            });
+
+            card.addEventListener('mouseleave', () => {
+                card.style.transform = '';
+            });
+
+            card.addEventListener('click', () => {
+                arcadeAudio.playLaunch();
+
+                currentGame = {
+                    url: card.dataset.game,
+                    name: card.dataset.gameName
+                };
+
+                fetch(`/start_game/${encodeURIComponent(currentGame.name)}`, { method: 'POST' })
+                    .then(() => {
+                        refreshHistoryData();
+                        gameIframe.src = currentGame.url;
+                        fullscreenContainer.classList.add('active');
+                    })
+                    .catch(error => {
+                        console.error('Error logging game start:', error);
+                        gameIframe.src = currentGame.url;
+                        fullscreenContainer.classList.add('active');
+                    });
+            });
+        });
+
+        function closeGame() {
+            if (currentGame) {
+                fetch(`/end_game/${encodeURIComponent(currentGame.name)}`, { method: 'POST' })
+                    .then(() => refreshHistoryData())
+                    .catch(error => console.error('Error logging game end:', error));
+                currentGame = null;
+            }
+
+            fullscreenContainer.classList.remove('active');
+            gameIframe.src = '';
+        }
+
+        window.addEventListener('beforeunload', () => {
+            if (currentGame) {
+                navigator.sendBeacon(`/end_game/${encodeURIComponent(currentGame.name)}`);
+            }
+        });
+
+        document.addEventListener('DOMContentLoaded', refreshHistoryData);
+    </script>
+</body>
+
+</html>

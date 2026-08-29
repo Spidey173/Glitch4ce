@@ -1,0 +1,760 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Glitch4ce | Player Portal</title>
+    <link rel="icon" type="image/webp" href="{{ url_for('static', filename='Glitch4ce.webp') }}">
+    <link
+        href="https://fonts.googleapis.com/css2?family=Press+Start+2P&family=Orbitron:wght@500;700;900&family=Inter:wght@400;600;700&family=Share+Tech+Mono&family=JetBrains+Mono:wght@400;700&display=swap"
+        rel="stylesheet">
+    <style>
+        :root {
+            --neon-pink: #ff007f;
+            --neon-cyan: #00f3ff;
+            --neon-purple: #9d00ff;
+            --neon-green: #00ff88;
+            --neon-yellow: #ffe600;
+            --dark-bg: #030308;
+            --card-bg: rgba(12, 12, 22, 0.9);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            background-color: var(--dark-bg);
+            background-image:
+                radial-gradient(circle at 15% 15%, rgba(0, 243, 255, 0.16) 0%, transparent 45%),
+                radial-gradient(circle at 85% 85%, rgba(255, 0, 127, 0.16) 0%, transparent 45%),
+                radial-gradient(circle at 50% 50%, rgba(157, 0, 255, 0.1) 0%, transparent 65%);
+            color: #ffffff;
+            font-family: 'Inter', system-ui, sans-serif;
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            overflow: hidden;
+            position: relative;
+            padding: 20px;
+        }
+
+        /* 3D Cyber Synthwave Grid Floor */
+        .cyber-grid-floor {
+            position: fixed;
+            bottom: -60px;
+            left: -50%;
+            width: 200%;
+            height: 65vh;
+            background-image:
+                linear-gradient(rgba(0, 243, 255, 0.26) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(0, 243, 255, 0.26) 1px, transparent 1px);
+            background-size: 45px 45px;
+            transform: perspective(320px) rotateX(72deg);
+            transform-origin: bottom center;
+            animation: gridMove 9s linear infinite;
+            mask-image: linear-gradient(to top, rgba(0, 0, 0, 1) 15%, rgba(0, 0, 0, 0) 88%);
+            -webkit-mask-image: linear-gradient(to top, rgba(0, 0, 0, 1) 15%, rgba(0, 0, 0, 0) 88%);
+            pointer-events: none;
+            z-index: 1;
+        }
+
+        @keyframes gridMove {
+            0% {
+                background-position: 0 0;
+            }
+
+            100% {
+                background-position: 0 450px;
+            }
+        }
+
+        /* Ambient Glowing Nebula Orbs */
+        .ambient-glow {
+            position: fixed;
+            width: 550px;
+            height: 550px;
+            border-radius: 50%;
+            filter: blur(140px);
+            pointer-events: none;
+            z-index: 0;
+            opacity: 0.55;
+            animation: orbFloat 8s ease-in-out infinite alternate;
+        }
+
+        .glow-cyan {
+            top: 5%;
+            left: 5%;
+            background: radial-gradient(circle, rgba(0, 243, 255, 0.45), transparent 70%);
+        }
+
+        .glow-pink {
+            bottom: 5%;
+            right: 5%;
+            background: radial-gradient(circle, rgba(255, 0, 127, 0.45), transparent 70%);
+            animation-delay: -4s;
+        }
+
+        @keyframes orbFloat {
+            0% {
+                transform: translate(0, 0) scale(1);
+            }
+
+            100% {
+                transform: translate(35px, -35px) scale(1.15);
+            }
+        }
+
+        /* Matrix & Particle Canvas */
+        #matrixCanvas {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 2;
+            opacity: 0.75;
+        }
+
+        /* Cyber HUD Corner Telemetry */
+        .hud-corner {
+            position: fixed;
+            font-family: 'Share Tech Mono', monospace;
+            font-size: 0.78rem;
+            color: rgba(0, 243, 255, 0.6);
+            letter-spacing: 2px;
+            pointer-events: none;
+            z-index: 3;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .hud-tl {
+            top: 22px;
+            left: 26px;
+        }
+
+        .hud-tr {
+            top: 22px;
+            right: 26px;
+        }
+
+        .hud-bl {
+            bottom: 22px;
+            left: 26px;
+        }
+
+        .hud-br {
+            bottom: 22px;
+            right: 26px;
+        }
+
+        .hud-bracket {
+            color: var(--neon-pink);
+            font-weight: bold;
+        }
+
+        .scanline-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background:
+                linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.22) 50%),
+                linear-gradient(90deg, rgba(255, 0, 0, 0.03), rgba(0, 255, 0, 0.01), rgba(0, 0, 255, 0.03));
+            background-size: 100% 3px, 6px 100%;
+            pointer-events: none;
+            z-index: 4;
+            opacity: 0.6;
+        }
+
+        /* Card Container */
+        .card-wrapper {
+            position: relative;
+            z-index: 10;
+            width: 100%;
+            max-width: 880px;
+        }
+
+        /* Rotating Conic Aura */
+        .card-glow-aura {
+            position: absolute;
+            top: -18px;
+            left: -18px;
+            right: -18px;
+            bottom: -18px;
+            background: linear-gradient(135deg, rgba(0, 243, 255, 0.35), rgba(255, 0, 127, 0.35), rgba(157, 0, 255, 0.25));
+            border-radius: 36px;
+            filter: blur(30px);
+            opacity: 0.75;
+            z-index: -1;
+            animation: pulseAura 4s ease-in-out infinite alternate;
+        }
+
+        @keyframes pulseAura {
+            0% {
+                opacity: 0.5;
+                filter: blur(25px);
+            }
+
+            100% {
+                opacity: 0.9;
+                filter: blur(40px);
+            }
+        }
+
+        /* Main Login Card */
+        .login-card {
+            background: var(--card-bg);
+            backdrop-filter: blur(24px);
+            border: 2px solid rgba(0, 243, 255, 0.45);
+            box-shadow:
+                0 0 60px rgba(0, 243, 255, 0.2),
+                0 30px 60px rgba(0, 0, 0, 0.9),
+                inset 0 0 25px rgba(0, 243, 255, 0.08);
+            border-radius: 28px;
+            width: 100%;
+            display: grid;
+            grid-template-columns: 1.1fr 1.35fr;
+            overflow: hidden;
+            animation: cardAppear 0.8s cubic-bezier(0.16, 1, 0.3, 1);
+            position: relative;
+        }
+
+        @keyframes cardAppear {
+            from {
+                opacity: 0;
+                transform: translateY(40px) scale(0.95);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0) scale(1);
+            }
+        }
+
+        /* Left Column: Branding & Reactor Core */
+        .card-brand-panel {
+            background: linear-gradient(145deg, rgba(255, 0, 127, 0.18), rgba(0, 243, 255, 0.12));
+            border-right: 1px solid rgba(0, 243, 255, 0.3);
+            padding: 3.5rem 2.2rem;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+            position: relative;
+        }
+
+        .logo-core-wrap {
+            position: relative;
+            margin-bottom: 1.6rem;
+        }
+
+        .reactor-ring {
+            position: absolute;
+            top: -12px;
+            left: -12px;
+            right: -12px;
+            bottom: -12px;
+            border-radius: 50%;
+            border: 2px dashed var(--neon-cyan);
+            animation: spinRing 12s linear infinite;
+            opacity: 0.7;
+        }
+
+        @keyframes spinRing {
+            100% {
+                transform: rotate(360deg);
+            }
+        }
+
+        .login-logo {
+            width: 90px;
+            height: 90px;
+            border-radius: 22px;
+            box-shadow: 0 0 35px rgba(255, 0, 127, 0.7);
+            position: relative;
+            z-index: 2;
+        }
+
+        /* Pure CSS Glitch Brand */
+        .brand-title {
+            font-family: 'Press Start 2P', cursive;
+            font-size: 1.45rem;
+            letter-spacing: 3px;
+            color: #ffffff;
+            position: relative;
+            display: inline-block;
+            margin-bottom: 0.8rem;
+            text-shadow: 0 0 15px rgba(0, 243, 255, 0.6);
+        }
+
+        .brand-tagline {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 0.85rem;
+            color: var(--neon-cyan);
+            letter-spacing: 3px;
+            text-transform: uppercase;
+            font-weight: 700;
+        }
+
+        .brand-features-list {
+            margin-top: 1.5rem;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            font-family: 'Share Tech Mono', monospace;
+            font-size: 0.78rem;
+            color: #a0b0d0;
+        }
+
+        .feat-item {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        /* Right Column: Form */
+        .card-form-panel {
+            padding: 3.5rem 3rem;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+        }
+
+        .panel-heading {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 1.75rem;
+            font-weight: 900;
+            color: #ffffff;
+            margin-bottom: 0.35rem;
+            letter-spacing: 2px;
+            background: linear-gradient(45deg, #ffffff, var(--neon-cyan));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .panel-subtext {
+            color: #929bb8;
+            font-size: 0.9rem;
+            margin-bottom: 1.8rem;
+            font-family: 'Share Tech Mono', monospace;
+        }
+
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+
+        .input-label {
+            display: block;
+            font-family: 'Orbitron', sans-serif;
+            font-size: 0.8rem;
+            color: var(--neon-cyan);
+            margin-bottom: 0.55rem;
+            letter-spacing: 1.5px;
+            text-transform: uppercase;
+        }
+
+        .input-box {
+            width: 100%;
+            padding: 1rem 1.25rem;
+            background: rgba(6, 6, 12, 0.88);
+            border: 1.5px solid rgba(0, 243, 255, 0.35);
+            border-radius: 12px;
+            color: #ffffff;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 1.05rem;
+            letter-spacing: 1px;
+            outline: none;
+            transition: all 0.3s ease;
+        }
+
+        .input-box:focus {
+            border-color: var(--neon-pink);
+            box-shadow: 0 0 25px rgba(255, 0, 127, 0.5), inset 0 0 12px rgba(255, 0, 127, 0.15);
+            transform: translateY(-1px);
+        }
+
+        .input-box::placeholder {
+            color: rgba(255, 255, 255, 0.25);
+            font-family: 'Inter', sans-serif;
+            font-size: 0.92rem;
+        }
+
+        .btn-group {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            margin-top: 1.2rem;
+        }
+
+        .login-btn {
+            width: 100%;
+            padding: 1.1rem;
+            background: linear-gradient(45deg, var(--neon-pink), #ff2266, var(--neon-cyan));
+            background-size: 200% 200%;
+            border: none;
+            border-radius: 12px;
+            color: #ffffff;
+            font-family: 'Orbitron', sans-serif;
+            font-weight: 900;
+            font-size: 1.05rem;
+            letter-spacing: 2px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 0 30px rgba(255, 0, 127, 0.5);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+        }
+
+        .login-btn:hover {
+            background-position: right center;
+            transform: translateY(-2px);
+            box-shadow: 0 0 45px rgba(0, 243, 255, 0.7);
+        }
+
+        .guest-quick-btn {
+            width: 100%;
+            padding: 0.85rem;
+            background: rgba(0, 255, 136, 0.08);
+            border: 1.5px solid var(--neon-green);
+            border-radius: 12px;
+            color: var(--neon-green);
+            font-family: 'Orbitron', sans-serif;
+            font-weight: 700;
+            font-size: 0.88rem;
+            letter-spacing: 1.5px;
+            cursor: pointer;
+            transition: all 0.25s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+
+        .guest-quick-btn:hover {
+            background: rgba(0, 255, 136, 0.25);
+            box-shadow: 0 0 25px rgba(0, 255, 136, 0.5);
+            transform: translateY(-2px);
+        }
+
+        .flash-banner {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 12px 14px;
+            border-radius: 10px;
+            font-size: 0.85rem;
+            font-family: 'Share Tech Mono', monospace;
+            margin-bottom: 20px;
+            animation: fadeIn 0.3s ease;
+        }
+
+        .flash-warning,
+        .flash-danger {
+            background: rgba(255, 51, 68, 0.15);
+            border: 1px solid var(--neon-pink);
+            color: #ff99bb;
+        }
+
+        .flash-success {
+            background: rgba(0, 255, 136, 0.15);
+            border: 1px solid #00ff88;
+            color: #00ff88;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(-5px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @media (max-width: 768px) {
+            .login-card {
+                grid-template-columns: 1fr;
+                max-width: 480px;
+            }
+
+            .card-brand-panel {
+                border-right: none;
+                border-bottom: 1px solid rgba(0, 243, 255, 0.2);
+                padding: 2.5rem 2rem;
+            }
+
+            .card-form-panel {
+                padding: 2.5rem 2rem;
+            }
+
+            .hud-corner {
+                display: none;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <!-- 3D Synthwave Grid Floor -->
+    <div class="cyber-grid-floor"></div>
+
+    <!-- Glowing Nebula Orbs -->
+    <div class="ambient-glow glow-cyan"></div>
+    <div class="ambient-glow glow-pink"></div>
+
+    <!-- Scanline Effect -->
+    <div class="scanline-overlay"></div>
+
+    <!-- Cyber HUD Telemetry Elements -->
+    <div class="hud-corner hud-tl">
+        <span class="hud-bracket">[</span> GLITCH4CE // SYS.CORE <span class="hud-bracket">]</span>
+    </div>
+    <div class="hud-corner hud-tr">
+        <span class="hud-bracket">[</span> STATUS // 16 MODULES <span class="hud-bracket">]</span>
+    </div>
+    <div class="hud-corner hud-bl">
+        <span class="hud-bracket">[</span> SEC_LAYER // ACTIVE <span class="hud-bracket">]</span>
+    </div>
+    <div class="hud-corner hud-br">
+        <span class="hud-bracket">[</span> PORTAL_V2.5 <span class="hud-bracket">]</span>
+    </div>
+
+    <!-- Interactive Matrix Rain / Particle Canvas -->
+    <canvas id="matrixCanvas"></canvas>
+
+    <!-- Main Card Container with Outer Ambient Aura -->
+    <div class="card-wrapper">
+        <div class="card-glow-aura"></div>
+        <div class="login-card">
+            <!-- Left Column: Branding -->
+            <div class="card-brand-panel">
+                <div class="logo-core-wrap">
+                    <div class="reactor-ring"></div>
+                    <img src="{{ url_for('static', filename='Glitch4ce.webp') }}" alt="Glitch4ce" class="login-logo">
+                </div>
+                <h1 class="brand-title">GLITCH4CE</h1>
+                <p class="brand-tagline">RETRO ARCADE HUB</p>
+                <div class="brand-features-list">
+                    <span class="feat-item">⚡ 16 Retro & Cyber Mini-Games</span>
+                    <span class="feat-item">⌨️ SpeedType Pro Real-Time WPM</span>
+                    <span class="feat-item">🏆 High Score Telemetry Engine</span>
+                </div>
+            </div>
+
+            <!-- Right Column: Login Form -->
+            <div class="card-form-panel">
+                <h2 class="panel-heading">PLAYER ACCESS</h2>
+                <p class="panel-subtext">// ENTER YOUR CODENAME TO ACTIVATE TERMINAL //</p>
+
+                {% with messages = get_flashed_messages(with_categories=true) %}
+                    {% if messages %}
+                        {% for category, msg in messages %}
+                            <div class="flash-banner flash-{{ category }}">
+                                <span>{{ '⚠️' if category in ['warning', 'danger'] else '⚡' }}</span>
+                                <span>{{ msg }}</span>
+                            </div>
+                        {% endfor %}
+                    {% endif %}
+                {% endwith %}
+
+                <form action="{{ url_for('auth.login') }}" method="POST" id="loginForm">
+                    {% if form %}
+                        {{ form.hidden_tag() }}
+                    {% else %}
+                        <input type="hidden" name="csrf_token" value="{{ csrf_token() if csrf_token else '' }}">
+                    {% endif %}
+
+                    <div class="form-group">
+                        <label class="input-label" for="username">Player Codename</label>
+                        <input type="text"
+                               id="username"
+                               name="username"
+                               class="input-box"
+                               placeholder="e.g. CyberKnight"
+                               value="{{ form.username.data if form and form.username.data else '' }}"
+                               maxlength="30"
+                               required
+                               autofocus>
+                    </div>
+
+                    <div class="form-group" style="margin-top: 15px;">
+                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
+                            <label class="input-label" for="password" style="margin: 0;">Security Passcode</label>
+                            <span style="font-size: 0.75rem; color: #8888aa; font-family: 'Share Tech Mono', monospace;">(Optional for Guest)</span>
+                        </div>
+                        <input type="password"
+                               id="password"
+                               name="password"
+                               class="input-box"
+                               placeholder="Enter password (optional)"
+                               maxlength="100">
+                    </div>
+
+                    <div class="btn-group">
+                        <button type="submit" class="login-btn">
+                            <span>ACTIVATE SYSTEM</span>
+                            <span>🎮</span>
+                        </button>
+                        <button type="button" class="guest-quick-btn" onclick="quickGuestLogin()">
+                            <span>⚡</span> INSTANT GUEST PASS
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Quick Guest Login Generator
+        function quickGuestLogin() {
+            const prefixes = ['NEO', 'CYBER', 'GLITCH', 'NETRUNNER', 'ZERO', 'VORTEX', 'SYNTH', 'QUANTUM'];
+            const randomPrefix = prefixes[Math.floor(Math.random() * prefixes.length)];
+            const randomNum = Math.floor(100 + Math.random() * 900);
+            const generatedName = `${randomPrefix}_${randomNum}`;
+
+            const userField = document.getElementById('username');
+            userField.value = generatedName;
+            document.getElementById('loginForm').submit();
+        }
+
+        // Matrix Rain Canvas
+        class CyberCanvasSystem {
+            constructor() {
+                this.canvas = document.getElementById('matrixCanvas');
+                this.ctx = this.canvas.getContext('2d');
+                this.resize();
+
+                this.characters = 'GLITCH4CE010101XYZ0123456789アイウエオカキクケコサシスセソ';
+                this.fontSize = 14;
+                this.columns = Math.floor(this.canvas.width / this.fontSize);
+                this.drops = Array(this.columns).fill(1).map(() => Math.floor(Math.random() * -50));
+
+                this.particles = [];
+                this.mouse = { x: null, y: null, radius: 120 };
+
+                this.initParticles();
+                this.animate();
+
+                window.addEventListener('resize', () => {
+                    this.resize();
+                    this.columns = Math.floor(this.canvas.width / this.fontSize);
+                    this.drops = Array(this.columns).fill(1).map(() => Math.floor(Math.random() * -50));
+                });
+
+                window.addEventListener('mousemove', (e) => {
+                    this.mouse.x = e.x;
+                    this.mouse.y = e.y;
+                });
+
+                window.addEventListener('mouseleave', () => {
+                    this.mouse.x = null;
+                    this.mouse.y = null;
+                });
+            }
+
+            resize() {
+                this.canvas.width = window.innerWidth;
+                this.canvas.height = window.innerHeight;
+            }
+
+            initParticles() {
+                this.particles = [];
+                const count = Math.min(45, Math.floor((this.canvas.width * this.canvas.height) / 25000));
+                for (let i = 0; i < count; i++) {
+                    this.particles.push({
+                        x: Math.random() * this.canvas.width,
+                        y: Math.random() * this.canvas.height,
+                        vx: (Math.random() - 0.5) * 0.7,
+                        vy: (Math.random() - 0.5) * 0.7,
+                        size: Math.random() * 2 + 1,
+                        color: i % 2 === 0 ? 'rgba(0, 243, 255, ' : 'rgba(255, 0, 127, '
+                    });
+                }
+            }
+
+            animate() {
+                this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
+
+                this.ctx.font = `${this.fontSize}px 'JetBrains Mono', monospace`;
+                for (let i = 0; i < this.drops.length; i += 2) {
+                    const text = this.characters.charAt(Math.floor(Math.random() * this.characters.length));
+                    const x = i * this.fontSize;
+                    const y = this.drops[i] * this.fontSize;
+
+                    if (y > 0 && y < this.canvas.height) {
+                        this.ctx.fillStyle = 'rgba(0, 243, 255, 0.22)';
+                        this.ctx.fillText(text, x, y);
+                    }
+
+                    if (y > this.canvas.height && Math.random() > 0.985) {
+                        this.drops[i] = 0;
+                    }
+                    this.drops[i]++;
+                }
+
+                for (let i = 0; i < this.particles.length; i++) {
+                    const p = this.particles[i];
+                    p.x += p.vx;
+                    p.y += p.vy;
+
+                    if (p.x < 0 || p.x > this.canvas.width) p.vx *= -1;
+                    if (p.y < 0 || p.y > this.canvas.height) p.vy *= -1;
+
+                    if (this.mouse.x !== null && this.mouse.y !== null) {
+                        const dx = p.x - this.mouse.x;
+                        const dy = p.y - this.mouse.y;
+                        const dist = Math.sqrt(dx * dx + dy * dy);
+                        if (dist < this.mouse.radius) {
+                            const angle = Math.atan2(dy, dx);
+                            const force = (this.mouse.radius - dist) / this.mouse.radius;
+                            p.x += Math.cos(angle) * force * 2;
+                            p.y += Math.sin(angle) * force * 2;
+                        }
+                    }
+
+                    this.ctx.beginPath();
+                    this.ctx.arc(p.x, p.y, p.size, 0, Math.PI * 2);
+                    this.ctx.fillStyle = p.color + '0.7)';
+                    this.ctx.fill();
+
+                    for (let j = i + 1; j < this.particles.length; j++) {
+                        const p2 = this.particles[j];
+                        const dx = p.x - p2.x;
+                        const dy = p.y - p2.y;
+                        const dist = Math.sqrt(dx * dx + dy * dy);
+
+                        if (dist < 130) {
+                            this.ctx.beginPath();
+                            this.ctx.moveTo(p.x, p.y);
+                            this.ctx.lineTo(p2.x, p2.y);
+                            const alpha = (1 - dist / 130) * 0.2;
+                            this.ctx.strokeStyle = `rgba(0, 243, 255, ${alpha})`;
+                            this.ctx.lineWidth = 1;
+                            this.ctx.stroke();
+                        }
+                    }
+                }
+
+                requestAnimationFrame(() => this.animate());
+            }
+        }
+
+        new CyberCanvasSystem();
+    </script>
+</body>
+
+</html>
