@@ -341,10 +341,18 @@ deathSound.play();
 gameOver = true;
 document.getElementById("gameOverScreen").style.display = "block";
 document.getElementById("finalScore").innerText = score;
+
+fetch('/api/score/submit', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ game_name: 'Flappy Bird', score: Math.floor(score) })
+}).catch(err => console.log('Score submission error:', err));
+
 setTimeout(() => {
 document.getElementById("restartButton").style.display = "block";
 }, 2000);
 }
+
 
 function restartGame() {
 bird.y = birdY;
