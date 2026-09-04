@@ -204,3 +204,19 @@ def health_check():
     })
 
 
+@main_bp.route('/profile')
+@login_required
+def profile():
+    """Render player profile overview with statistics and score badges."""
+    user_scores = GameScore.query.filter_by(player_id=current_user.id).order_by(GameScore.score.desc()).all()
+    user_sessions = GameplaySession.query.filter_by(player_id=current_user.id).order_by(GameplaySession.started_at.desc()).limit(20).all()
+
+    return render_template(
+        'profile.html',
+        user=current_user,
+        scores=user_scores,
+        sessions=user_sessions
+    )
+
+
+
