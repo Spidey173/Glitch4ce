@@ -3,11 +3,13 @@ from datetime import datetime, timezone
 
 from flask import Blueprint, jsonify, redirect, render_template, request, url_for
 from flask_login import current_user, login_required
+from sqlalchemy.exc import SQLAlchemyError
 
 from app.extensions import csrf, db
 from app.models import GameplaySession, GameScore
 
 main_bp = Blueprint('main', __name__)
+
 
 
 
@@ -193,9 +195,9 @@ def health_check():
     try:
         score_count = db.session.query(db.func.count(GameScore.id)).scalar() or 0
         db_status = 'connected'
-    except Exception as e:
+    except SQLAlchemyError as err:
         score_count = 0
-        db_status = f'error: {str(e)}'
+        db_status = f'error: {err!s}'
 
     return jsonify({
         'status': 'healthy',
@@ -204,6 +206,7 @@ def health_check():
         'timestamp': datetime.now(timezone.utc).isoformat(),
         'version': '1.2.0'
     })
+
 
 
 
