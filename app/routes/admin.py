@@ -3,7 +3,7 @@ from flask import Blueprint, flash, redirect, render_template, url_for
 from sqlalchemy import func
 
 from app.extensions import db
-from app.models import GameplaySession, User
+from app.models import GameScore, GameplaySession, User
 
 admin_bp = Blueprint('admin', __name__, url_prefix='/admin')
 
@@ -15,6 +15,7 @@ def index():
     players = User.query.order_by(User.created_at.desc()).all()
     total_players = len(players)
     total_sessions = GameplaySession.query.count()
+    total_scores = GameScore.query.count()
 
     # Calculate top 5 most played games
     top_games = (
@@ -28,13 +29,24 @@ def index():
         .all()
     )
 
+    # Calculate top high scores overall
+    top_scores = (
+        GameScore.query
+        .order_by(GameScore.score.desc())
+        .limit(5)
+        .all()
+    )
+
     return render_template(
         'admin/index.html',
         players=players,
         total_players=total_players,
         total_sessions=total_sessions,
-        top_games=top_games
+        total_scores=total_scores,
+        top_games=top_games,
+        top_scores=top_scores
     )
+
 
 
 @admin_bp.route('/player/<string:username>')
