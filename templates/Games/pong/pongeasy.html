@@ -265,7 +265,15 @@
       scoreboardText.innerText = `${player1.name}: ${player1.score} | ${player2.name}: ${player2.score}`;
       resultBox.style.display = 'flex';
       cancelAnimationFrame(gameLoopId);
+
+      const winningScore = Math.max(player1.score, player2.score) * 100;
+      fetch('/api/score/submit', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ game_name: 'Pong Easy', score: winningScore })
+      }).catch(err => console.log('Score submission error:', err));
     }
+
     
     function restartGame() {
       player1.score = 0;
