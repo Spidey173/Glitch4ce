@@ -52,9 +52,19 @@ def create_app(config_name=None):
     app.add_url_rule('/logout', endpoint='logout', view_func=app.view_functions['auth.logout'])
     app.add_url_rule('/games', endpoint='games', view_func=app.view_functions['main.games'])
 
+    # Security response headers middleware
+    @app.after_request
+    def set_security_headers(response):
+        response.headers['X-Content-Type-Options'] = 'nosniff'
+        response.headers['X-Frame-Options'] = 'SAMEORIGIN'
+        response.headers['X-XSS-Protection'] = '1; mode=block'
+        response.headers['Referrer-Policy'] = 'strict-origin-when-cross-origin'
+        return response
+
     # Auto-create tables in development / test environments
     with app.app_context():
         db.create_all()
+
 
     return app
 
