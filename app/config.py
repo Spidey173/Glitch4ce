@@ -12,7 +12,10 @@ load_dotenv(os.path.join(basedir, '.env'))
 
 class Config:
     """Base configuration."""
+    APP_NAME = 'Glitch4ce'
+    APP_VERSION = '1.2.0'
     SECRET_KEY = os.environ.get('SECRET_KEY', 'glitch4ce-fallback-dev-secret-key-replace-in-prod')
+    MAX_CONTENT_LENGTH = 16 * 1024 * 1024  # 16 MB max payload size
     
     # Database
     SQLALCHEMY_DATABASE_URI = os.environ.get(
@@ -36,6 +39,7 @@ class Config:
     REMEMBER_COOKIE_HTTPONLY = True
     REMEMBER_COOKIE_SECURE = SESSION_COOKIE_SECURE
     REMEMBER_COOKIE_DURATION = timedelta(days=14)
+    SECURITY_PASSWORD_SALT = os.environ.get('SECURITY_PASSWORD_SALT', 'glitch4ce-password-salt')
 
     # Rate Limiting
     RATELIMIT_ENABLED = True
@@ -78,3 +82,4 @@ config_by_name = {
     'production': ProductionConfig,
     'default': DevelopmentConfig,
 }
+
