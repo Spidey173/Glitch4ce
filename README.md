@@ -41,33 +41,39 @@ A production-grade, interactive retro-gaming portal built with **Flask**, **SQLA
 ```text
 Glitch4ce/
 ├── .gitattributes           # GitHub Linguist language override
+├── docs/
+│   └── API.md               # Complete REST API specification
 ├── app/
-│   ├── __init__.py          # Application Factory (create_app)
+│   ├── __init__.py          # Application Factory & Security Middleware
 │   ├── config.py            # Environment-aware Config (Dev, Test, Prod)
 │   ├── extensions.py        # Extensions: db, login_manager, csrf, limiter, migrate
-│   ├── models.py            # SQLAlchemy models (User, GameplaySession)
+│   ├── models.py            # SQLAlchemy models (User, GameplaySession, GameScore)
 │   ├── forms.py             # Secure WTForms for login & registration
 │   ├── routes/
 │   │   ├── auth.py          # /login, /register, /logout
-│   │   ├── main.py          # /, /games, /api/history, /start_game, /end_game
+│   │   ├── main.py          # /, /games, /profile, telemetry & leaderboard APIs
 │   │   ├── games.py         # Dynamic routes & endpoint registry for 15+ games
 │   │   ├── admin.py         # /admin player and telemetry dashboard
 │   │   └── errors.py        # 400, 401, 403, 404, 429, 500 cyberpunk error handlers
 │   └── utils/
-│       └── migrate_data.py  # SQLite to SQLAlchemy database migration utility
+│       ├── migrate_data.py  # SQLite to SQLAlchemy database migration utility
+│       └── seed_data.py     # Database mock data seeder utility
 ├── templates/               # Cyberpunk Jinja2 templates
 │   ├── admin/               # Admin portal views
 │   ├── errors/              # Custom error pages
+│   ├── profile.html         # Player profile overview
 │   └── Games/               # Arcade Hub and mini-game templates
 ├── static/                  # Static assets (images, game audio, stylesheets)
-├── tests/                   # Automated test suite (pytest)
+│   ├── css/cyberpunk.css    # Synthwave CRT scanlines & neon animations
+│   └── js/game_launcher.js  # Telemetry & fullscreen launcher module
+├── tests/                   # Automated test suite (pytest - 26 tests)
 │   ├── conftest.py          # Pytest application & database fixtures
 │   ├── test_models.py       # Model & password hashing unit tests
 │   ├── test_auth.py         # Authentication integration tests
 │   ├── test_routes.py       # Route & template integration tests
-│   └── test_api.py          # Telemetry API integration tests
+│   └── test_api.py          # Telemetry & score API integration tests
 ├── .github/workflows/
-│   └── ci.yml               # GitHub Actions CI workflow (ruff + pytest)
+│   └── ci.yml               # GitHub Actions CI workflow (python matrix + pytest)
 ├── app.py                   # WSGI Application Entrypoint
 ├── show_database.py         # CLI database telemetry inspector
 ├── requirements.txt         # Pinned production dependencies
@@ -129,6 +135,11 @@ Run static analysis and linting with **ruff**:
 ruff check .
 ```
 
+Seed database with mock telemetry data:
+```bash
+python app/utils/seed_data.py
+```
+
 Inspect database records from terminal:
 ```bash
 python show_database.py
@@ -145,11 +156,16 @@ python show_database.py
 | `/register` | GET, POST | Register protected player account |
 | `/logout` | GET | Clears active player sessions |
 | `/games` | GET | Main Arcade Hub dashboard |
+| `/profile` | GET | Player metrics, badges, and high score history |
 | `/admin` | GET | Admin telemetry & player manager |
 | `/admin/player/<username>/delete` | POST | CSRF-protected player removal |
 | `/start_game/<game_name>` | POST | Logs game start & session ID |
 | `/end_game/<game_name>` | POST | Records session completion & duration |
 | `/api/history` | GET | Real-time player history JSON |
+| `/api/score/submit` | POST | Submits mini-game high score |
+| `/api/leaderboard/<game_name>` | GET | Retrieves top 10 scores per game |
+| `/api/health` | GET | Telemetry & system health check |
+
 
 ---
 
