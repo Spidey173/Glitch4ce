@@ -469,10 +469,16 @@
             }
         }
         if (isGameOver()) {
-    music.pause();
-    document.getElementById("gameOverModal").style.display = "flex";
-    document.getElementById("finalScore").innerText = score;
+            music.pause();
+            document.getElementById("gameOverModal").style.display = "flex";
+            document.getElementById("finalScore").innerText = score;
+            fetch('/api/score/submit', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ game_name: '2048', score: score })
+            }).catch(err => console.log('Score error:', err));
         }
+
     }
     function hasEmptyTile() {
         for (let r = 0; r < rows; r++) {
