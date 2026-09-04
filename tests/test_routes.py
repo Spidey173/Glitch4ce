@@ -82,3 +82,19 @@ def test_security_response_headers(client):
     assert response.headers.get('X-Content-Type-Options') == 'nosniff'
     assert response.headers.get('X-Frame-Options') == 'SAMEORIGIN'
 
+
+def test_profile_unauthorized(client):
+    """Test /profile redirects unauthenticated user to login."""
+    response = client.get('/profile')
+    assert response.status_code == 302
+    assert '/login' in response.headers['Location']
+
+
+def test_profile_authenticated(auth_client):
+    """Test /profile renders player username and metrics."""
+    response = auth_client.get('/profile')
+    assert response.status_code == 200
+    assert b'CyberTester' in response.data
+    assert b'TOTAL GAMES PLAYED' in response.data
+
+
