@@ -186,3 +186,21 @@ def get_leaderboard(game_name):
         'leaderboard': [s.to_dict() for s in top_scores]
     })
 
+
+@main_bp.route('/api/health')
+def health_check():
+    """Application health check and status telemetry API."""
+    try:
+        player_count = db.session.query(db.func.count(GameScore.id)).scalar() or 0
+        db_status = 'connected'
+    except Exception as e:
+        db_status = f'error: {str(e)}'
+
+    return jsonify({
+        'status': 'healthy',
+        'database': db_status,
+        'timestamp': datetime.now(timezone.utc).isoformat(),
+        'version': '1.2.0'
+    })
+
+
