@@ -1505,11 +1505,40 @@
             }
         }
 
+        function handleSearch(query) {
+            const q = query.toLowerCase().trim();
+            document.querySelectorAll('.game-card').forEach(card => {
+                const title = (card.dataset.gameName || '').toLowerCase();
+                const category = (card.dataset.category || '').toLowerCase();
+                if (title.includes(q) || category.includes(q)) {
+                    card.style.display = 'flex';
+                } else {
+                    card.style.display = 'none';
+                }
+            });
+        }
+
+        function filterCategory(category, btnElement) {
+            document.querySelectorAll('.chip-btn').forEach(btn => btn.classList.remove('active'));
+            if (btnElement) btnElement.classList.add('active');
+
+            const cat = category.toLowerCase().trim();
+            document.querySelectorAll('.game-card').forEach(card => {
+                const cardCat = (card.dataset.category || '').toLowerCase();
+                if (cat === 'all' || cardCat === cat) {
+                    card.style.display = 'flex';
+                } else {
+                    card.style.display = 'none';
+                }
+            });
+        }
+
         function escapeHtml(text) {
             const div = document.createElement('div');
             div.textContent = text || '';
             return div.innerHTML;
         }
+
 
         function openHistoryModal() {
             arcadeAudio.playLaunch();
