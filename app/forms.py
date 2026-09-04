@@ -49,7 +49,11 @@ class RegisterForm(FlaskForm):
     submit = SubmitField('REGISTER ACCOUNT')
 
     def validate_username(self, field):
-        """Ensure username is unique."""
-        user = User.query.filter_by(username=field.data.strip()).first()
+        """Ensure username contains valid characters and is unique."""
+        cleaned = field.data.strip()
+        if not cleaned.replace('_', '').replace('-', '').isalnum():
+            raise ValidationError('Codename can only contain letters, numbers, hyphens, and underscores.')
+        user = User.query.filter_by(username=cleaned).first()
         if user and user.password_hash is not None:
             raise ValidationError('This codename is already registered with a password. Please log in.')
+
