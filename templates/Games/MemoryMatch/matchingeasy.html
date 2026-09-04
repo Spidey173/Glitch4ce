@@ -244,7 +244,16 @@
     
       resultTitle.textContent = titleMessage;
       resultDetails.textContent = `You used ${moves} moves and finished in ${time}s.`;
+
+      // Submit score telemetry
+      const finalScore = Math.max(10, 1000 - (moves * 15) - (time * 5));
+      fetch('/api/score/submit', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ game_name: 'Memory Match Easy', score: finalScore })
+      }).catch(err => console.log('Score submission error:', err));
     }
+
     
 
     function restartGame() {
