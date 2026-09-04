@@ -1,13 +1,14 @@
 """Main arcade hub views and gameplay tracking API."""
 from datetime import datetime, timezone
 
-from flask import Blueprint, jsonify, redirect, render_template, url_for
+from flask import Blueprint, jsonify, redirect, render_template, request, url_for
 from flask_login import current_user, login_required
 
 from app.extensions import csrf, db
-from app.models import GameplaySession
+from app.models import GameScore, GameplaySession
 
 main_bp = Blueprint('main', __name__)
+
 
 
 @main_bp.route('/')
@@ -129,3 +130,59 @@ def api_history():
         'count': len(history),
         'history': history
     })
+
+
+@main_bp.route('/api/score/submit', methods=['POST'])
+@csrf.exempt
+def submit_score():
+    """Submit a high score for a game session."""
+    if not current_user.is_authenticated:
+        return jsonify({'error': 'unauthorized'}), 401
+
+    data = request.get_json(silent=True) or request.form
+    game_name = data.get('game_name', '').strip()
+    score_val = data.get('score')
+
+    if not game_name or score_val is None:
+        return jsonify({'error': 'invalid payload, game_name and score required'}), 400
+
+    try:
+        score_int = int(score_val)
+        if score_int < 0:
+            return jsonify({'error': 'score cannot be negative'}), 400
+    except (ValueError, TypeError):
+        return jsonify({'error': 'score must be an integer'}), 400
+
+    new_score = GameScore(
+        player_id=current_user.id,
+        game_name=game_name,
+        score=score_int,
+        achieved_at=datetime.now(timezone.utc)
+    )
+    db.session.add(new_score)
+    db.session.commit()
+
+    return jsonify({
+        'status': 'success',
+        'message': 'Score recorded',
+        'score': new_score.to_dict()
+    }), 201
+
+
+@main_bp.route('/api/leaderboard/<path:game_name>')
+def get_leaderboard(game_name):
+    """Retrieve top 10 scores for a given game."""
+    clean_game_name = game_name.strip()
+    top_scores = (
+        GameScore.query
+        .filter_by(game_name=clean_game_name)
+        .order_by(GameScore.score.desc(), GameScore.achieved_at.asc())
+        .limit(10)
+        .all()
+    )
+
+    return jsonify({
+        'game_name': clean_game_name,
+        'leaderboard': [s.to_dict() for s in top_scores]
+    })
+
