@@ -33,6 +33,13 @@ class User(UserMixin, db.Model):
         cascade='all, delete-orphan',
         order_by='GameplaySession.started_at.desc()'
     )
+    scores = db.relationship(
+        'GameScore',
+        backref='player',
+        lazy='dynamic',
+        cascade='all, delete-orphan',
+        order_by='GameScore.score.desc()'
+    )
 
     def set_password(self, password: str):
         """Hash and set the user's password."""
@@ -52,6 +59,12 @@ class User(UserMixin, db.Model):
         """Return total games played count."""
         return self.sessions.count()
 
+    @property
+    def highest_score(self) -> int:
+        """Return highest score across all games."""
+        top_score = self.scores.order_by(GameScore.score.desc()).first()
+        return top_score.score if top_score else 0
+
     def to_dict(self):
         """Serialize user to dictionary."""
         return {
@@ -60,6 +73,7 @@ class User(UserMixin, db.Model):
             'is_guest': self.is_guest,
             'is_admin': self.is_admin,
             'total_plays': self.total_plays,
+            'highest_score': self.highest_score,
             'created_at': self.created_at.isoformat() if self.created_at else None,
             'last_seen': self.last_seen.isoformat() if self.last_seen else None
         }
@@ -101,3 +115,29 @@ class GameplaySession(db.Model):
 
     def __repr__(self):
         return f"<GameplaySession id={self.id} player_id={self.player_id} game='{self.game_name}'>"
+
+
+class GameScore(db.Model):
+    """High score tracking model per game per player."""
+    __tablename__ = 'game_scores'
+
+    id = db.Column(db.Integer, primary_key=True)
+    player_id = db.Column(db.Integer, db.ForeignKey('players.id', ondelete='CASCADE'), nullable=False, index=True)
+    game_name = db.Column(db.String(100), nullable=False, index=True)
+    score = db.Column(db.Integer, nullable=False, default=0, index=True)
+    achieved_at = db.Column(db.DateTime, default=lambda: datetime.now(timezone.utc), nullable=False, index=True)
+
+    def to_dict(self):
+        """Serialize score to dictionary."""
+        return {
+            'id': self.id,
+            'player_id': self.player_id,
+            'username': self.player.username if self.player else 'Guest',
+            'game_name': self.game_name,
+            'score': self.score,
+            'achieved_at': self.achieved_at.isoformat() if self.achieved_at else None
+        }
+
+    def __repr__(self):
+        return f"<GameScore id={self.id} player_id={self.player_id} game='{self.game_name}' score={self.score}>"
+
