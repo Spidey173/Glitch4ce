@@ -3,8 +3,9 @@
 For the interactive web admin console, run `python app.py` and navigate to `/admin`.
 """
 import argparse
+
 from app import create_app
-from app.models import GameScore, GameplaySession, User
+from app.models import GameplaySession, GameScore, User
 
 
 def inspect_database(show_scores=True, show_players=True):

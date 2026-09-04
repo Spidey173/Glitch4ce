@@ -1,11 +1,10 @@
 """Database Seed and Mock Telemetry Generator Utility."""
-from datetime import datetime, timedelta, timezone
 import random
+from datetime import datetime, timedelta, timezone
 
 from app import create_app
 from app.extensions import db
-from app.models import GameScore, GameplaySession, User
-
+from app.models import GameplaySession, GameScore, User
 
 MOCK_GAMES = [
     '2048', 'Flappy Bird', 'Crossword', 'Candy Crush', 'Pong',

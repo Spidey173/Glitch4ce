@@ -1,6 +1,6 @@
 """Unit tests for SQLAlchemy models."""
 from app.extensions import db
-from app.models import GameScore, GameplaySession, User
+from app.models import GameplaySession, GameScore, User
 
 
 def test_user_creation_and_password_hashing(app):

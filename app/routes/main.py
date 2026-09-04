@@ -5,7 +5,7 @@ from flask import Blueprint, jsonify, redirect, render_template, request, url_fo
 from flask_login import current_user, login_required
 
 from app.extensions import csrf, db
-from app.models import GameScore, GameplaySession
+from app.models import GameplaySession, GameScore
 
 main_bp = Blueprint('main', __name__)
 

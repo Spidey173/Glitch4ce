@@ -3,7 +3,7 @@ from flask import Blueprint, flash, redirect, render_template, url_for
 from sqlalchemy import func
 
 from app.extensions import db
-from app.models import GameScore, GameplaySession, User
+from app.models import GameplaySession, GameScore, User
 
 admin_bp = Blueprint('admin', __name__, url_prefix='/admin')
 
