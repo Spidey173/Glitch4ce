@@ -64,3 +64,21 @@ def test_404_error_page(client):
     assert response.status_code == 404
     assert b'404' in response.data
     assert b'SECTOR NOT FOUND' in response.data
+
+
+def test_api_health_endpoint(client):
+    """Test /api/health returns healthy JSON status."""
+    response = client.get('/api/health')
+    assert response.status_code == 200
+    data = response.get_json()
+    assert data['status'] == 'healthy'
+    assert data['database'] == 'connected'
+    assert data['version'] == '1.2.0'
+
+
+def test_security_response_headers(client):
+    """Test security response headers are present on responses."""
+    response = client.get('/api/health')
+    assert response.headers.get('X-Content-Type-Options') == 'nosniff'
+    assert response.headers.get('X-Frame-Options') == 'SAMEORIGIN'
+
