@@ -59,3 +59,45 @@ def test_end_game_tracking(auth_client, app):
         session = GameplaySession.query.filter_by(game_name='Maze').first()
         assert session is not None
         assert session.ended_at is not None
+
+
+def test_submit_score_unauthorized(client):
+    """Test /api/score/submit returns 401 when unauthenticated."""
+    response = client.post('/api/score/submit', json={'game_name': '2048', 'score': 100})
+    assert response.status_code == 401
+
+
+def test_submit_score_valid_and_leaderboard(auth_client):
+    """Test posting valid scores and getting sorted leaderboard."""
+    # Submit score 1500 for 2048
+    resp1 = auth_client.post('/api/score/submit', json={'game_name': '2048', 'score': 1500})
+    assert resp1.status_code == 201
+    data1 = resp1.get_json()
+    assert data1['status'] == 'success'
+    assert data1['score']['score'] == 1500
+
+    # Submit score 3200 for 2048
+    resp2 = auth_client.post('/api/score/submit', json={'game_name': '2048', 'score': 3200})
+    assert resp2.status_code == 201
+
+    # Check leaderboard
+    lb_resp = auth_client.get('/api/leaderboard/2048')
+    assert lb_resp.status_code == 200
+    lb_data = lb_resp.get_json()
+    assert lb_data['game_name'] == '2048'
+    assert len(lb_data['leaderboard']) == 2
+    assert lb_data['leaderboard'][0]['score'] == 3200
+    assert lb_data['leaderboard'][1]['score'] == 1500
+
+
+def test_submit_score_invalid_payload(auth_client):
+    """Test submitting negative or invalid score returns 400."""
+    resp_neg = auth_client.post('/api/score/submit', json={'game_name': '2048', 'score': -50})
+    assert resp_neg.status_code == 400
+
+    resp_str = auth_client.post('/api/score/submit', json={'game_name': '2048', 'score': 'abc'})
+    assert resp_str.status_code == 400
+
+    resp_missing = auth_client.post('/api/score/submit', json={'score': 100})
+    assert resp_missing.status_code == 400
+
